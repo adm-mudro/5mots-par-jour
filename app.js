@@ -263,6 +263,7 @@ let traceIdx = 0, traceWord = '', traceChecked = false, traceOrder = [];
 function initTrace(){
   traceOrder = shuffle(gameWords.map(function(_, i){ return i; }));
   traceIdx = 0;
+  fitCanvas();
   showTrace();
 }
 function showTrace(){
@@ -287,11 +288,20 @@ function showTrace(){
 const canvas = document.getElementById('traceCanvas');
 const ctx = canvas.getContext('2d');
 let drawing = false, lastX = 0, lastY = 0, hasDrawn = false;
+let canvasScale = 1;
+function fitCanvas(){
+  const r = canvas.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvasScale = dpr;
+  canvas.width = Math.max(100, Math.round(r.width * dpr));
+  canvas.height = Math.max(100, Math.round(r.height * dpr));
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
 function getPos(e){
   const r = canvas.getBoundingClientRect();
   const x = (e.clientX || e.touches[0].clientX) - r.left;
   const y = (e.clientY || e.touches[0].clientY) - r.top;
-  return { x: x * (canvas.width / r.width), y: y * (canvas.height / r.height) };
+  return { x: x * (canvas.width / r.width) / canvasScale, y: y * (canvas.height / r.height) / canvasScale };
 }
 function startDraw(e){ e.preventDefault(); drawing = true; const p = getPos(e); lastX = p.x; lastY = p.y; }
 function draw(e){
@@ -317,19 +327,43 @@ canvas.addEventListener('mouseleave', stopDraw);
 canvas.addEventListener('touchstart', startDraw);
 canvas.addEventListener('touchmove', draw);
 canvas.addEventListener('touchend', stopDraw);
-function clearCanvas(){ ctx.clearRect(0, 0, canvas.width, canvas.height); hasDrawn = false; drawTraceGuide(traceWord); }
+window.addEventListener('resize', function(){
+  if(document.getElementById('gscreen2').classList.contains('active')){
+    fitCanvas();
+    clearCanvas();
+  }
+});
+function clearCanvas(){ ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.restore(); hasDrawn = false; drawTraceGuide(traceWord); }
 function drawTraceGuide(word){
   ctx.fillStyle = '#F0E6FF';
-  ctx.font = 'bold 100px Comic Sans MS, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  if(word.length > 12){
-    const words = word.split(' ');
-    const mid = Math.ceil(words.length / 2);
-    ctx.fillText(words.slice(0, mid).join(' '), canvas.width / 2, canvas.height / 2 - 40);
-    ctx.fillText(words.slice(mid).join(' '), canvas.width / 2, canvas.height / 2 + 40);
+  const w = canvas.width / canvasScale;
+  const h = canvas.height / canvasScale;
+  const parts = word.split(' ');
+  let lines;
+  if(parts.length > 1){
+    const mid = Math.ceil(parts.length / 2);
+    lines = [parts.slice(0, mid).join(' '), parts.slice(mid).join(' ')];
   } else {
-    ctx.fillText(word, canvas.width / 2, canvas.height / 2);
+    lines = [word];
+  }
+  let size = lines.length > 1
+    ? Math.min(64, Math.floor(h / 2.5))
+    : Math.min(110, Math.floor(h * 0.7));
+  ctx.font = 'bold ' + size + 'px Comic Sans MS, sans-serif';
+  while(size > 20 && lines.some(function(l){ return ctx.measureText(l).width > w - 16; })){
+    size -= 4;
+    ctx.font = 'bold ' + size + 'px Comic Sans MS, sans-serif';
+  }
+  const cy = h / 2;
+  if(lines.length > 1){
+    const step = Math.min(70, h / 2.2);
+    lines.forEach(function(line, i){
+      ctx.fillText(line, w / 2, cy + (i - (lines.length - 1) / 2) * step);
+    });
+  } else {
+    ctx.fillText(word, w / 2, cy);
   }
 }
 function checkTrace(){
