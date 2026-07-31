@@ -137,11 +137,14 @@ function renderWeek(w){
   for(let d = 1; d <= 5; d++){
     const data = getDayData(w, d);
     const count = getWords(w, d).length;
+    const wk = WEEKS[w - 1];
+    const theme = wk && wk.theme ? wk.theme[d - 1] : '';
     const btn = document.createElement('button');
     btn.className = 'day-card' + (data.done ? ' done' : '');
     const label = d === 5 ? 'Повторение • ' + count + ' слов' : 'Новые слова • ' + count;
     btn.innerHTML =
-      '<div><div class="day-num">День ' + d + '</div><div class="day-title">' + label + '</div></div>' +
+      '<div><div class="day-num">День ' + d + '</div><div class="day-title">' + label + '</div>' +
+      (theme ? '<div class="day-theme">🎯 Тема: ' + theme + '</div>' : '') + '</div>' +
       '<div class="day-status">' + (data.done ? '✅ Пройден' : '⭐ ' + data.stars + ' / 4') + '</div>';
     btn.onclick = (function(dd){ return function(){ startDay(w, dd); }; })(d);
     list.appendChild(btn);
