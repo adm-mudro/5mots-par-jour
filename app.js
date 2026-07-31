@@ -374,9 +374,16 @@ function showDictation(){
   setTimeout(function(){ speak(currentDictationWord); }, 400);
 }
 function playDictation(){ speak(currentDictationWord); }
+function normalizeFr(s){
+  return String(s).toLowerCase()
+    .replace(/œ/g, 'oe').replace(/æ/g, 'ae')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
 function checkDictation(){
-  const input = document.getElementById('dictationInput').value.toLowerCase().trim();
-  const correct = currentDictationWord.toLowerCase();
+  const input = normalizeFr(document.getElementById('dictationInput').value);
+  const correct = normalizeFr(currentDictationWord);
   if(input === correct){
     if(dictChecked) return;
     dictChecked = true;
