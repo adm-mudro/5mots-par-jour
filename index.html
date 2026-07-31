@@ -27,6 +27,7 @@
   .btn-blue{background:var(--blue)}
   .btn-pink{background:var(--pink)}
   .btn-purple{background:var(--purple)}
+  .btn-skip{background:#E2E8F0;color:#64748B;border:2px dashed #CBD5E1}
   
   /* FLASHCARDS - Quizlet style */
   .flashcard-container{perspective:1000px;margin:20px auto;max-width:500px;height:300px}
@@ -143,6 +144,7 @@
     </div>
     <div class="nav">
       <button class="btn btn-green" onclick="markLearned()">✅ Я выучил это слово</button>
+      <button class="btn btn-skip" onclick="goTo(2)">Пропустить →</button>
     </div>
     <div class="nav">
       <button class="btn btn-purple" id="flashcardsDone" style="display:none" onclick="goTo(2)">Переходим к прописям →</button>
@@ -166,7 +168,10 @@
       <button class="btn btn-green" onclick="checkTrace()">✅ Готово!</button>
     </div>
     <div class="feedback" id="traceFeedback"></div>
-    <div class="nav"><button class="btn btn-blue" id="traceNext" style="display:none" onclick="nextTrace()">Дальше →</button></div>
+    <div class="nav">
+      <button class="btn btn-blue" id="traceNext" style="display:none" onclick="nextTrace()">Дальше →</button>
+      <button class="btn btn-skip" onclick="goTo(3)">Пропустить →</button>
+    </div>
   </div>
 
   <!-- SCREEN 3: Dictation mode -->
@@ -185,7 +190,10 @@
       <button class="btn btn-blue" onclick="speak(currentDictationWord)">Повторить 🔊</button>
     </div>
     <div class="feedback" id="dictationFeedback"></div>
-    <div class="nav"><button class="btn btn-blue" id="dictationNext" style="display:none" onclick="nextDictation()">Следующее слово →</button></div>
+    <div class="nav">
+      <button class="btn btn-blue" id="dictationNext" style="display:none" onclick="nextDictation()">Следующее слово →</button>
+      <button class="btn btn-skip" onclick="goTo(4)">Пропустить →</button>
+    </div>
   </div>
 
   <!-- SCREEN 4: Matching -->
@@ -194,7 +202,10 @@
     <p class="hint">Нажми на французское слово, потом на его перевод</p>
     <div class="match-grid" id="matchGrid"></div>
     <div class="feedback" id="matchFeedback"></div>
-    <div class="nav"><button class="btn btn-blue" id="matchNext" style="display:none" onclick="goTo(5)">К финалу! </button></div>
+    <div class="nav">
+      <button class="btn btn-blue" id="matchNext" style="display:none" onclick="goTo(5)">К финалу! </button>
+      <button class="btn btn-skip" onclick="goTo(5)">Пропустить →</button>
+    </div>
   </div>
 
   <!-- SCREEN 5: Final -->
