@@ -81,7 +81,7 @@ function startDay(w, d){
   currentWeek = w;
   currentDay = d;
   document.body.setAttribute('data-theme', themeGroup(w));
-  gameWords = shuffle(getWords(w, d)).map(toWord);
+  gameWords = getWords(w, d).map(toWord);
   document.getElementById('gameTitle').textContent = 'Неделя ' + w + ' • День ' + d;
   renderWelcome();
   updateGameHeader();
@@ -447,7 +447,7 @@ let matchSelected = null, matchPairs = 0;
 function initMatch(){
   matchPairs = 0;
   matchSelected = null;
-  const left = gameWords.map(function(w, i){ return { text: w.fr, type: 'fr', idx: i }; });
+  const left = shuffle(gameWords.map(function(w, i){ return { text: w.fr, type: 'fr', idx: i }; }));
   const right = shuffle(gameWords.map(function(w, i){ return { text: w.ru + ' ' + w.emoji, type: 'ru', idx: i }; }));
   const grid = document.getElementById('matchGrid');
   grid.innerHTML = '';
