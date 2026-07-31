@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>🇫🇷 French Junior — Week 11 Day 1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root{
+    --orange:#FF9F43; --green:#2ED573; --blue:#54A0FF;
+    --pink:#FF6B9D; --purple:#A55EEA; --cream:#FFF8E7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Comic Sans MS','Trebuchet MS',sans-serif}
+  body{background:linear-gradient(135deg,#FFEAA7 0%,#FAB1A0 100%);min-height:100vh;padding:20px}
+  .container{max-width:900px;margin:0 auto;background:#fff;border-radius:25px;padding:25px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+  h1{text-align:center;color:var(--purple);font-size:2em;margin-bottom:10px}
+  .subtitle{text-align:center;color:#666;margin-bottom:20px}
+  .progress-bar{background:#eee;border-radius:20px;height:25px;overflow:hidden;margin:15px 0;position:relative}
+  .progress-fill{background:linear-gradient(90deg,var(--green),var(--blue));height:100%;width:0%;transition:width .5s;border-radius:20px}
+  .progress-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-weight:bold;color:#333;font-size:.9em}
+  .stars{text-align:center;font-size:1.5em;margin:10px 0}
+  .screen{display:none;animation:fadeIn .4s}
+  .screen.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .btn{background:var(--orange);color:#fff;border:none;padding:12px 25px;border-radius:30px;font-size:1.1em;cursor:pointer;margin:5px;transition:transform .2s;font-family:inherit}
+  .btn:hover{transform:scale(1.05)}
+  .btn-green{background:var(--green)}
+  .btn-blue{background:var(--blue)}
+  .btn-pink{background:var(--pink)}
+  .btn-purple{background:var(--purple)}
+  
+  /* FLASHCARDS - Quizlet style */
+  .flashcard-container{perspective:1000px;margin:20px auto;max-width:500px;height:300px}
+  .flashcard{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s;cursor:pointer}
+  .flashcard.flipped{transform:rotateY(180deg)}
+  .flashcard-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;box-shadow:0 8px 25px rgba(0,0,0,.15)}
+  .flashcard-front{background:linear-gradient(135deg,var(--blue),#7EC8FF);color:#fff}
+  .flashcard-back{background:linear-gradient(135deg,var(--green),#7FFFD4);color:#fff;transform:rotateY(180deg)}
+  .flashcard-word{font-size:2.5em;font-weight:bold;margin-bottom:15px;text-align:center}
+  .flashcard-emoji{font-size:4em;margin:10px 0}
+  .flashcard-hint{font-size:.9em;opacity:.9;margin-top:15px}
+  .speaker-btn{background:rgba(255,255,255,.3);color:#fff;border:none;border-radius:50%;width:50px;height:50px;font-size:1.5em;cursor:pointer;margin:10px;transition:transform .2s}
+  .speaker-btn:hover{transform:scale(1.1)}
+  
+  /* TRACING - improved */
+  .trace-wrapper{background:var(--cream);border:3px dashed var(--orange);border-radius:20px;padding:20px;margin:15px 0}
+  .trace-word-display{font-size:2em;color:var(--purple);font-weight:bold;text-align:center;margin-bottom:10px;word-break:break-word}
+  .trace-word-display.long-phrase{font-size:1.5em;display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+  canvas{border:3px solid var(--purple);border-radius:15px;background:#fff;cursor:crosshair;display:block;margin:15px auto;touch-action:none;max-width:100%}
+  .canvas-controls{text-align:center;margin:10px 0}
+  
+  /* DICTATION */
+  .dictation-input{font-size:1.5em;padding:15px;border:3px solid var(--blue);border-radius:15px;width:100%;max-width:400px;text-align:center;margin:15px 0}
+  .dictation-input.correct{border-color:var(--green);background:#D4F5D4}
+  .dictation-input.wrong{border-color:#ff4757;background:#FFD4D4}
+  
+  /* MATCHING */
+  .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:500px;margin:0 auto}
+  .match-item{background:#fff;border:3px solid #ddd;border-radius:12px;padding:12px;text-align:center;cursor:pointer;font-size:1.1em;transition:all .2s}
+  .match-item:hover{transform:translateY(-2px)}
+  .match-item.selected{border-color:var(--blue);background:#E8F4FF}
+  .match-item.matched{background:#D4F5D4;border-color:var(--green);opacity:.6;pointer-events:none}
+  
+  .options{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0}
+  .option{background:#fff;border:3px solid #ddd;border-radius:15px;padding:15px;cursor:pointer;text-align:center;transition:all .2s;font-size:1.1em}
+  .option:hover{border-color:var(--blue);transform:translateY(-3px)}
+  .option.correct{background:#D4F5D4;border-color:var(--green);animation:bounce .5s}
+  .option.wrong{background:#FFD4D4;border-color:#ff4757}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  
+  .feedback{text-align:center;font-size:1.3em;margin:15px 0;min-height:40px}
+  .feedback.good{color:var(--green)}
+  .feedback.bad{color:#ff4757}
+  .badge{font-size:5em;text-align:center;animation:spin 1s}
+  @keyframes spin{from{transform:rotate(0) scale(0)}to{transform:rotate(360deg) scale(1)}}
+  .nav{text-align:center;margin-top:20px}
+  .hint{background:#FFF3CD;border-left:4px solid var(--orange);padding:10px 15px;border-radius:8px;margin:10px 0;font-size:.95em}
+  
+  /* SVG ANIMATIONS */
+  .svg-icon{width:80px;height:80px;margin:10px auto;display:block}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .float-anim{animation:float 2s ease-in-out infinite}
+  @keyframes bounce-svg{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+  .bounce-anim{animation:bounce-svg 1s ease-in-out infinite}
+  
+  /* SAVE PROGRESS */
+  .save-indicator{position:fixed;top:10px;right:10px;background:var(--green);color:#fff;padding:8px 15px;border-radius:20px;font-size:.9em;opacity:0;transition:opacity .3s}
+  .save-indicator.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="save-indicator" id="saveIndicator">💾 Прогресс сохранён</div>
+<div class="container">
+  <h1>🇫🇷 French Junior</h1>
+  <p class="subtitle">Week 11 • Day 1 • 5 слов дня</p>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div><div class="progress-text" id="progressText">0 / 5 заданий</div></div>
+  <div class="stars" id="starsDisplay">⭐ 0</div>
+
+  <!-- SCREEN 0: Welcome -->
+  <div class="screen active" id="screen0">
+    <div style="text-align:center">
+      <svg class="svg-icon float-anim" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="#FF9F43" opacity=".3"/>
+        <text x="50" y="65" font-size="50" text-anchor="middle">🎵</text>
+      </svg>
+      <h2>Привет! Сегодня учим 5 слов о хобби и творчестве </h2>
+      <div style="background:var(--cream);border-radius:15px;padding:20px;margin:15px 0;text-align:left">
+        <div style="margin:10px 0">🎤 <b>chanter</b> — петь</div>
+        <div style="margin:10px 0"> <b>danser</b> — танцевать</div>
+        <div style="margin:10px 0">🎹 <b>jouer du piano</b> — играть на пианино</div>
+        <div style="margin:10px 0">🎸 <b>jouer de la guitare</b> — играть на гитаре</div>
+        <div style="margin:10px 0">📷 <b>prendre une photo</b> — делать фото</div>
+      </div>
+      <button class="btn btn-green" onclick="goTo(1)">🚀 Начать игру!</button>
+      <div style="margin-top:15px;font-size:.9em;color:#666">
+        💾 Твой прогресс автоматически сохраняется
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 1: Flashcards (Quizlet style) -->
+  <div class="screen" id="screen1">
+    <h2>📇 Задание 1: Карточки как в Quizlet</h2>
+    <p class="hint">Нажми на карточку чтобы перевернуть. 🔊 чтобы услышать</p>
+    <div class="flashcard-container">
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="flashcard-face flashcard-front">
+          <div class="flashcard-emoji" id="fcEmoji">🎤</div>
+          <div class="flashcard-word" id="fcWord">chanter</div>
+          <button class="speaker-btn" onclick="event.stopPropagation();speak(currentFcWord)">🔊</button>
+          <div class="flashcard-hint">👆 Нажми чтобы перевернуть</div>
+        </div>
+        <div class="flashcard-face flashcard-back">
+          <div class="flashcard-emoji" id="fcEmojiBack">🎤</div>
+          <div class="flashcard-word" id="fcWordBack">петь</div>
+          <div class="flashcard-hint"> Нажми чтобы перевернуть</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin:15px 0">
+      <button class="btn btn-blue" onclick="prevCard()">← Назад</button>
+      <span id="cardCounter" style="margin:0 15px;font-size:1.2em">1 / 5</span>
+      <button class="btn btn-blue" onclick="nextCard()">Вперёд →</button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-green" onclick="markLearned()">✅ Я выучил это слово</button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-purple" id="flashcardsDone" style="display:none" onclick="goTo(2)">Переходим к прописям →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Tracing (прописи) - IMPROVED -->
+  <div class="screen" id="screen2">
+    <h2>✍️ Задание 2: Прописи</h2>
+    <p class="hint">Обведи буквы пальцем или мышкой. Нажми 🔊 чтобы услышать слово</p>
+    <div class="trace-wrapper">
+      <div style="text-align:center">
+        <button class="speaker-btn" onclick="speak(traceWord)"></button>
+        <div class="trace-word-display" id="traceWordDisplay">chanter</div>
+        <div class="word-ru" id="traceRuDisplay" style="text-align:center;margin-top:5px;color:#666"></div>
+      </div>
+    </div>
+    <canvas id="traceCanvas" width="800" height="250"></canvas>
+    <div class="canvas-controls">
+      <button class="btn btn-pink" onclick="clearCanvas()">🧹 Очистить</button>
+      <button class="btn btn-green" onclick="checkTrace()">✅ Готово!</button>
+    </div>
+    <div class="feedback" id="traceFeedback"></div>
+    <div class="nav"><button class="btn btn-blue" id="traceNext" style="display:none" onclick="nextTrace()">Дальше →</button></div>
+  </div>
+
+  <!-- SCREEN 3: Dictation mode -->
+  <div class="screen" id="screen3">
+    <h2>🎧 Задание 3: Диктант</h2>
+    <p class="hint">Послушай слово и напиши его по-французски</p>
+    <div style="text-align:center;margin:20px 0">
+      <button class="speaker-btn" style="width:80px;height:80px;font-size:2.5em" onclick="playDictation()">🔊</button>
+      <div style="margin-top:15px;color:#666">Нажми на динамик чтобы услышать слово</div>
+    </div>
+    <div style="text-align:center">
+      <input type="text" class="dictation-input" id="dictationInput" placeholder="Впиши слово..." autocomplete="off">
+    </div>
+    <div class="nav">
+      <button class="btn btn-green" onclick="checkDictation()">Проверить</button>
+      <button class="btn btn-blue" onclick="speak(currentDictationWord)">Повторить 🔊</button>
+    </div>
+    <div class="feedback" id="dictationFeedback"></div>
+    <div class="nav"><button class="btn btn-blue" id="dictationNext" style="display:none" onclick="nextDictation()">Следующее слово →</button></div>
+  </div>
+
+  <!-- SCREEN 4: Matching -->
+  <div class="screen" id="screen4">
+    <h2>🎯 Задание 4: Сопоставь пары</h2>
+    <p class="hint">Нажми на французское слово, потом на его перевод</p>
+    <div class="match-grid" id="matchGrid"></div>
+    <div class="feedback" id="matchFeedback"></div>
+    <div class="nav"><button class="btn btn-blue" id="matchNext" style="display:none" onclick="goTo(5)">К финалу! </button></div>
+  </div>
+
+  <!-- SCREEN 5: Final -->
+  <div class="screen" id="screen5">
+    <div style="text-align:center">
+      <div class="badge">🏆</div>
+      <h2>Bravo! Отличная работа! 🎉</h2>
+      <p style="font-size:1.3em;margin:15px 0">Ты выучил все 5 слов дня!</p>
+      <div style="background:var(--cream);border-radius:15px;padding:20px;margin:15px 0">
+        <div>🎤 <b>chanter</b> — петь</div>
+        <div>💃 <b>danser</b> — танцевать</div>
+        <div>🎹 <b>jouer du piano</b> — играть на пианино</div>
+        <div>🎸 <b>jouer de la guitare</b> — играть на гитаре</div>
+        <div> <b>prendre une photo</b> — делать фото</div>
+      </div>
+      <p class="stars" id="finalStars"></p>
+      <div style="margin:15px 0;padding:15px;background:#E8F5E9;border-radius:10px">
+        <b>📊 Твой прогресс:</b><br>
+        <span id="totalStars">Всего звёзд: 0</span><br>
+        <span id="completedDays">Пройдено дней: 0</span>
+      </div>
+      <button class="btn btn-purple" onclick="location.reload()">🔄 Играть снова</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const WORDS = [
+  {fr:'chanter', ru:'петь', emoji:'🎤', svg:'singer'},
+  {fr:'danser', ru:'танцевать', emoji:'', svg:'dancer'},
+  {fr:'jouer du piano', ru:'играть на пианино', emoji:'🎹', svg:'piano'},
+  {fr:'jouer de la guitare', ru:'играть на гитаре', emoji:'🎸', svg:'guitar'},
+  {fr:'prendre une photo', ru:'делать фото', emoji:'📷', svg:'camera'}
+];
+
+let stars = 0;
+let currentScreen = 0;
+let currentFcIdx = 0;
+let flashcardsLearned = 0;
+let traceIdx = 0;
+let traceWord = '';
+let traceOrder = [];
+let currentDictationIdx = 0;
+let currentDictationWord = '';
+let dictationOrder = [];
+let matchSelected = null;
+let matchPairs = 0;
+
+// LocalStorage
+function loadProgress(){
+  const saved = localStorage.getItem('frenchJunior_progress');
+  if(saved){
+    const data = JSON.parse(saved);
+    stars = data.stars || 0;
+    updateStarsDisplay();
+  }
+}
+function saveProgress(){
+  localStorage.setItem('frenchJunior_progress', JSON.stringify({
+    stars: stars,
+    lastPlayed: new Date().toISOString(),
+    week11day1: true
+  }));
+  showSaveIndicator();
+}
+function showSaveIndicator(){
+  const ind = document.getElementById('saveIndicator');
+  ind.classList.add('show');
+  setTimeout(()=>ind.classList.remove('show'), 2000);
+}
+
+function shuffle(arr){return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1])}
+
+function speak(text){
+  if('speechSynthesis' in window){
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang='fr-FR'; u.rate=0.85;
+    speechSynthesis.speak(u);
+  } else { alert('Браузер не поддерживает озвучку. Используй Chrome/Edge/Safari.'); }
+}
+
+function updateProgress(n,total=5){
+  document.getElementById('progressFill').style.width = (n/total*100)+'%';
+  document.getElementById('progressText').textContent = n+' / '+total+' заданий';
+  updateStarsDisplay();
+  saveProgress();
+}
+
+function updateStarsDisplay(){
+  document.getElementById('starsDisplay').textContent = '⭐ '+stars;
+}
+
+function goTo(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen'+n).classList.add('active');
+  currentScreen = n;
+  if(n===1) initFlashcards();
+  if(n===2) initTrace();
+  if(n===3) initDictation();
+  if(n===4) initMatch();
+  if(n===5){ 
+    updateProgress(5); 
+    document.getElementById('finalStars').textContent='⭐'.repeat(stars)+' ('+stars+' звёзд)';
+    document.getElementById('totalStars').textContent = 'Всего звёзд: ' + stars;
+    const days = Object.keys(localStorage).filter(k=>k.startsWith('frenchJunior_day')).length;
+    document.getElementById('completedDays').textContent = 'Пройдено дней: ' + (days > 0 ? days : 1);
+  }
+}
+
+/* FLASHCARDS - Quizlet style */
+let currentFcWord = '';
+function initFlashcards(){
+  currentFcIdx = 0;
+  showFlashcard();
+}
+function showFlashcard(){
+  const w = WORDS[currentFcIdx];
+  currentFcWord = w.fr;
+  document.getElementById('fcEmoji').textContent = w.emoji;
+  document.getElementById('fcWord').textContent = w.fr;
+  document.getElementById('fcEmojiBack').textContent = w.emoji;
+  document.getElementById('fcWordBack').textContent = w.ru;
+  document.getElementById('cardCounter').textContent = (currentFcIdx+1)+' / '+WORDS.length;
+  document.getElementById('flashcard').classList.remove('flipped');
+  setTimeout(()=>speak(w.fr), 300);
+}
+function flipCard(){
+  document.getElementById('flashcard').classList.toggle('flipped');
+}
+function nextCard(){
+  if(currentFcIdx < WORDS.length-1){
+    currentFcIdx++;
+    showFlashcard();
+  }
+}
+function prevCard(){
+  if(currentFcIdx > 0){
+    currentFcIdx--;
+    showFlashcard();
+  }
+}
+function markLearned(){
+  flashcardsLearned++;
+  if(flashcardsLearned >= WORDS.length){
+    document.getElementById('flashcardsDone').style.display = 'inline-block';
+    stars++;
+    updateProgress(1);
+  }
+}
+
+/* TRACING - IMPROVED */
+function initTrace(){
+  traceOrder = [0,1,2,3,4];
+  traceIdx = 0;
+  showTrace();
+}
+function showTrace(){
+  const idx = traceOrder[traceIdx];
+  traceWord = WORDS[idx].fr;
+  const display = document.getElementById('traceWordDisplay');
+  display.textContent = traceWord;
+  
+  // Check if phrase is long and needs special formatting
+  if(traceWord.length > 12){
+    display.classList.add('long-phrase');
+    const words = traceWord.split(' ');
+    display.innerHTML = words.map(w=>'<span>'+w+'</span>').join(' ');
+  } else {
+    display.classList.remove('long-phrase');
+  }
+  
+  document.getElementById('traceRuDisplay').textContent = WORDS[idx].ru+' '+WORDS[idx].emoji;
+  document.getElementById('traceFeedback').textContent='';
+  document.getElementById('traceNext').style.display='none';
+  clearCanvas();
+  drawTraceGuide(traceWord);
+}
+const canvas = document.getElementById('traceCanvas');
+const ctx = canvas.getContext('2d');
+let drawing=false, lastX=0, lastY=0, hasDrawn=false;
+function getPos(e){
+  const r = canvas.getBoundingClientRect();
+  const x = (e.clientX||e.touches[0].clientX)-r.left;
+  const y = (e.clientY||e.touches[0].clientY)-r.top;
+  return {x:x*(canvas.width/r.width), y:y*(canvas.height/r.height)};
+}
+function startDraw(e){e.preventDefault();drawing=true;const p=getPos(e);lastX=p.x;lastY=p.y;}
+function draw(e){
+  if(!drawing) return; e.preventDefault();
+  const p=getPos(e);
+  ctx.strokeStyle='#A55EEA'; ctx.lineWidth=6; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(p.x,p.y); ctx.stroke();
+  lastX=p.x; lastY=p.y; hasDrawn=true;
+}
+function stopDraw(){drawing=false;}
+canvas.addEventListener('mousedown',startDraw);canvas.addEventListener('mousemove',draw);canvas.addEventListener('mouseup',stopDraw);canvas.addEventListener('mouseleave',stopDraw);
+canvas.addEventListener('touchstart',startDraw);canvas.addEventListener('touchmove',draw);canvas.addEventListener('touchend',stopDraw);
+function clearCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height);hasDrawn=false;drawTraceGuide(traceWord);}
+function drawTraceGuide(word){
+  ctx.fillStyle='#F0E6FF'; 
+  ctx.font='bold 100px Comic Sans MS, sans-serif';
+  ctx.textAlign='center'; 
+  ctx.textBaseline='middle';
+  
+  // For long phrases, split into two lines
+  if(word.length > 12){
+    const words = word.split(' ');
+    const mid = Math.ceil(words.length/2);
+    const line1 = words.slice(0,mid).join(' ');
+    const line2 = words.slice(mid).join(' ');
+    ctx.fillText(line1, canvas.width/2, canvas.height/2 - 40);
+    ctx.fillText(line2, canvas.width/2, canvas.height/2 + 40);
+  } else {
+    ctx.fillText(word, canvas.width/2, canvas.height/2);
+  }
+}
+function checkTrace(){
+  if(!hasDrawn){
+    document.getElementById('traceFeedback').textContent='✏️ Сначала обведи буквы!';
+    document.getElementById('traceFeedback').className='feedback bad';
+    return;
+  }
+  stars++; updateProgress(2);
+  document.getElementById('traceFeedback').textContent='✨ Magnifique! Ты написал: '+traceWord;
+  document.getElementById('traceFeedback').className='feedback good';
+  document.getElementById('traceNext').style.display='inline-block';
+}
+function nextTrace(){
+  traceIdx++;
+  if(traceIdx<5) showTrace();
+  else goTo(3);
+}
+
+/* DICTATION MODE */
+function initDictation(){
+  dictationOrder = shuffle([0,1,2,3,4]);
+  currentDictationIdx = 0;
+  showDictation();
+}
+function showDictation(){
+  const idx = dictationOrder[currentDictationIdx];
+  currentDictationWord = WORDS[idx].fr;
+  document.getElementById('dictationInput').value = '';
+  document.getElementById('dictationInput').className = 'dictation-input';
+  document.getElementById('dictationFeedback').textContent='';
+  document.getElementById('dictationNext').style.display='none';
+  setTimeout(()=>speak(currentDictationWord), 400);
+}
+function playDictation(){
+  speak(currentDictationWord);
+}
+function checkDictation(){
+  const input = document.getElementById('dictationInput').value.toLowerCase().trim();
+  const correct = currentDictationWord.toLowerCase();
+  if(input === correct){
+    document.getElementById('dictationInput').classList.add('correct');
+    document.getElementById('dictationFeedback').textContent='✅ Excellent! '+currentDictationWord;
+    document.getElementById('dictationFeedback').className='feedback good';
+    stars++; updateProgress(3);
+    document.getElementById('dictationNext').style.display='inline-block';
+  } else {
+    document.getElementById('dictationInput').classList.add('wrong');
+    document.getElementById('dictationFeedback').textContent='❌ Попробуй ещё раз! Правильно: '+currentDictationWord;
+    document.getElementById('dictationFeedback').className='feedback bad';
+  }
+}
+function nextDictation(){
+  currentDictationIdx++;
+  if(currentDictationIdx<5) showDictation();
+  else goTo(4);
+}
+
+/* MATCHING */
+function initMatch(){
+  matchPairs = 0; matchSelected = null;
+  const left = WORDS.map((w,i)=>({text:w.fr, type:'fr', idx:i}));
+  const right = shuffle(WORDS.map((w,i)=>({text:w.ru+' '+w.emoji, type:'ru', idx:i})));
+  const grid = document.getElementById('matchGrid');
+  grid.innerHTML='';
+  [...left,...right].forEach(item=>{
+    const d = document.createElement('div');
+    d.className='match-item';
+    d.textContent = item.text;
+    d.dataset.idx = item.idx;
+    d.dataset.type = item.type;
+    d.onclick = ()=>selectMatch(d);
+    grid.appendChild(d);
+  });
+  document.getElementById('matchFeedback').textContent='';
+  document.getElementById('matchNext').style.display='none';
+}
+function selectMatch(el){
+  if(el.classList.contains('matched')) return;
+  if(!matchSelected){
+    matchSelected = el;
+    el.classList.add('selected');
+  } else {
+    if(matchSelected===el){el.classList.remove('selected');matchSelected=null;return;}
+    if(matchSelected.dataset.type===el.dataset.type){
+      matchSelected.classList.remove('selected');
+      matchSelected = el;
+      el.classList.add('selected');
+      return;
+    }
+    if(matchSelected.dataset.idx===el.dataset.idx){
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchPairs++;
+      if(matchPairs===5){
+        stars++; updateProgress(4);
+        document.getElementById('matchFeedback').textContent='🎉 Все пары найдены!';
+        document.getElementById('matchFeedback').className='feedback good';
+        document.getElementById('matchNext').style.display='inline-block';
+      }
+    } else {
+      matchSelected.classList.remove('selected');
+      el.style.background='#FFD4D4';
+      matchSelected.style.background='#FFD4D4';
+      setTimeout(()=>{el.style.background='';if(matchSelected)matchSelected.style.background='';},500);
+    }
+    matchSelected = null;
+  }
+}
+
+// Load progress on start
+loadProgress();
+</script>
+</body>
+</html>
