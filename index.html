@@ -102,10 +102,10 @@
         <circle cx="50" cy="50" r="45" fill="#FF9F43" opacity=".3"/>
         <text x="50" y="65" font-size="50" text-anchor="middle">🎵</text>
       </svg>
-      <h2>Привет! Сегодня учим 5 слов о хобби и творчестве </h2>
+      <h2>Привет! Сегодня учим 5 слов о хобби и творчестве</h2>
       <div style="background:var(--cream);border-radius:15px;padding:20px;margin:15px 0;text-align:left">
         <div style="margin:10px 0">🎤 <b>chanter</b> — петь</div>
-        <div style="margin:10px 0"> <b>danser</b> — танцевать</div>
+        <div style="margin:10px 0">💃 <b>danser</b> — танцевать</div>
         <div style="margin:10px 0">🎹 <b>jouer du piano</b> — играть на пианино</div>
         <div style="margin:10px 0">🎸 <b>jouer de la guitare</b> — играть на гитаре</div>
         <div style="margin:10px 0">📷 <b>prendre une photo</b> — делать фото</div>
@@ -155,7 +155,7 @@
     <p class="hint">Обведи буквы пальцем или мышкой. Нажми 🔊 чтобы услышать слово</p>
     <div class="trace-wrapper">
       <div style="text-align:center">
-        <button class="speaker-btn" onclick="speak(traceWord)"></button>
+        <button class="speaker-btn" onclick="speak(traceWord)">🔊</button>
         <div class="trace-word-display" id="traceWordDisplay">chanter</div>
         <div class="word-ru" id="traceRuDisplay" style="text-align:center;margin-top:5px;color:#666"></div>
       </div>
@@ -208,7 +208,7 @@
         <div>💃 <b>danser</b> — танцевать</div>
         <div>🎹 <b>jouer du piano</b> — играть на пианино</div>
         <div>🎸 <b>jouer de la guitare</b> — играть на гитаре</div>
-        <div> <b>prendre une photo</b> — делать фото</div>
+        <div>📷 <b>prendre une photo</b> — делать фото</div>
       </div>
       <p class="stars" id="finalStars"></p>
       <div style="margin:15px 0;padding:15px;background:#E8F5E9;border-radius:10px">
@@ -224,7 +224,7 @@
 <script>
 const WORDS = [
   {fr:'chanter', ru:'петь', emoji:'🎤', svg:'singer'},
-  {fr:'danser', ru:'танцевать', emoji:'', svg:'dancer'},
+  {fr:'danser', ru:'танцевать', emoji:'💃', svg:'dancer'},
   {fr:'jouer du piano', ru:'играть на пианино', emoji:'🎹', svg:'piano'},
   {fr:'jouer de la guitare', ru:'играть на гитаре', emoji:'🎸', svg:'guitar'},
   {fr:'prendre une photo', ru:'делать фото', emoji:'📷', svg:'camera'}
@@ -234,11 +234,14 @@ let stars = 0;
 let currentScreen = 0;
 let currentFcIdx = 0;
 let flashcardsLearned = 0;
+let fcAllDone = false;
 let traceIdx = 0;
 let traceWord = '';
+let traceChecked = false;
 let traceOrder = [];
 let currentDictationIdx = 0;
 let currentDictationWord = '';
+let dictChecked = false;
 let dictationOrder = [];
 let matchSelected = null;
 let matchPairs = 0;
@@ -306,12 +309,17 @@ function goTo(n){
 
 /* FLASHCARDS - Quizlet style */
 let currentFcWord = '';
+let fcOrder = [];
 function initFlashcards(){
+  fcOrder = shuffle([0,1,2,3,4]);
   currentFcIdx = 0;
+  flashcardsLearned = 0;
+  fcAllDone = false;
+  document.getElementById('flashcardsDone').style.display = 'none';
   showFlashcard();
 }
 function showFlashcard(){
-  const w = WORDS[currentFcIdx];
+  const w = WORDS[fcOrder[currentFcIdx]];
   currentFcWord = w.fr;
   document.getElementById('fcEmoji').textContent = w.emoji;
   document.getElementById('fcWord').textContent = w.fr;
@@ -337,8 +345,10 @@ function prevCard(){
   }
 }
 function markLearned(){
+  if(fcAllDone) return;
   flashcardsLearned++;
   if(flashcardsLearned >= WORDS.length){
+    fcAllDone = true;
     document.getElementById('flashcardsDone').style.display = 'inline-block';
     stars++;
     updateProgress(1);
@@ -347,7 +357,7 @@ function markLearned(){
 
 /* TRACING - IMPROVED */
 function initTrace(){
-  traceOrder = [0,1,2,3,4];
+  traceOrder = shuffle([0,1,2,3,4]);
   traceIdx = 0;
   showTrace();
 }
@@ -369,6 +379,7 @@ function showTrace(){
   document.getElementById('traceRuDisplay').textContent = WORDS[idx].ru+' '+WORDS[idx].emoji;
   document.getElementById('traceFeedback').textContent='';
   document.getElementById('traceNext').style.display='none';
+  traceChecked = false;
   clearCanvas();
   drawTraceGuide(traceWord);
 }
@@ -412,11 +423,13 @@ function drawTraceGuide(word){
   }
 }
 function checkTrace(){
+  if(traceChecked) return;
   if(!hasDrawn){
     document.getElementById('traceFeedback').textContent='✏️ Сначала обведи буквы!';
     document.getElementById('traceFeedback').className='feedback bad';
     return;
   }
+  traceChecked = true;
   stars++; updateProgress(2);
   document.getElementById('traceFeedback').textContent='✨ Magnifique! Ты написал: '+traceWord;
   document.getElementById('traceFeedback').className='feedback good';
@@ -424,7 +437,7 @@ function checkTrace(){
 }
 function nextTrace(){
   traceIdx++;
-  if(traceIdx<5) showTrace();
+  if(traceIdx<WORDS.length) showTrace();
   else goTo(3);
 }
 
@@ -441,6 +454,7 @@ function showDictation(){
   document.getElementById('dictationInput').className = 'dictation-input';
   document.getElementById('dictationFeedback').textContent='';
   document.getElementById('dictationNext').style.display='none';
+  dictChecked = false;
   setTimeout(()=>speak(currentDictationWord), 400);
 }
 function playDictation(){
@@ -450,6 +464,8 @@ function checkDictation(){
   const input = document.getElementById('dictationInput').value.toLowerCase().trim();
   const correct = currentDictationWord.toLowerCase();
   if(input === correct){
+    if(dictChecked) return;
+    dictChecked = true;
     document.getElementById('dictationInput').classList.add('correct');
     document.getElementById('dictationFeedback').textContent='✅ Excellent! '+currentDictationWord;
     document.getElementById('dictationFeedback').className='feedback good';
@@ -463,7 +479,7 @@ function checkDictation(){
 }
 function nextDictation(){
   currentDictationIdx++;
-  if(currentDictationIdx<5) showDictation();
+  if(currentDictationIdx<WORDS.length) showDictation();
   else goTo(4);
 }
 
@@ -504,7 +520,7 @@ function selectMatch(el){
       matchSelected.classList.add('matched');
       el.classList.add('matched');
       matchPairs++;
-      if(matchPairs===5){
+      if(matchPairs===WORDS.length){
         stars++; updateProgress(4);
         document.getElementById('matchFeedback').textContent='🎉 Все пары найдены!';
         document.getElementById('matchFeedback').className='feedback good';
