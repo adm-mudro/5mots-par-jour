@@ -16,6 +16,12 @@
     <h1>🇫🇷 French Junior</h1>
     <p class="subtitle">Тренажёр слов «5 mots par jour» • 52 недели • 5 слов в день.</p>
     <p class="home-stats" id="homeStats"></p>
+    <div class="search-row">
+      <input type="number" id="weekSearch" min="1" max="52" placeholder="Поиск недели (1–52)…">
+      <button class="btn btn-blue" onclick="searchWeek()">🔍 Открыть</button>
+    </div>
+    <div id="searchHint" class="search-hint"></div>
+    <div id="homeRevealHint" class="reveal-hint"></div>
     <div class="week-grid" id="weekGrid"></div>
   </div>
 

@@ -3,6 +3,8 @@
 /* ================= ДАННЫЕ И ПРОГРЕСС ================= */
 const PROGRESS_KEY = '5mots_par_jour_progress';
 const TASK_COUNT = 4;
+const GROUP_SIZE = 4;
+const TOTAL_WEEKS = typeof WEEKS !== 'undefined' ? WEEKS.length : 52;
 let progress = {};
 
 function themeGroup(w){ return Math.floor((w - 1) / 4); }
@@ -39,7 +41,64 @@ function awardTaskStar(w, d, t){
     data.stars = Object.keys(data.tasks).length;
     if(data.stars >= TASK_COUNT) data.done = true;
     saveProgress();
+    maybeExtendReveal();
   }
+}
+
+/* ================= ПОЯВЛЕНИЕ НЕДЕЛЬ И ПОИСК ================= */
+function getMeta(){
+  if(!progress._meta) progress._meta = { visibleWeek: null };
+  return progress._meta;
+}
+function seedVisibleWeek(){
+  const meta = getMeta();
+  if(meta.visibleWeek) return;
+  let furthest = 0;
+  for(const k in progress){
+    const m = /^(\d+)-(\d+)$/.exec(k);
+    if(m){
+      const data = progress[k];
+      if(data && (data.stars > 0 || data.done)){
+        const w = parseInt(m[1], 10);
+        if(w > furthest) furthest = w;
+      }
+    }
+  }
+  meta.visibleWeek = Math.min(TOTAL_WEEKS, Math.max(GROUP_SIZE, Math.ceil(furthest / GROUP_SIZE) * GROUP_SIZE));
+  saveProgress();
+}
+function visibleWeek(){
+  const meta = getMeta();
+  return meta.visibleWeek || GROUP_SIZE;
+}
+function maybeExtendReveal(){
+  const meta = getMeta();
+  let v = visibleWeek();
+  let changed = false;
+  while(v < TOTAL_WEEKS && weekDone(v)){
+    v = Math.min(TOTAL_WEEKS, v + GROUP_SIZE);
+    changed = true;
+  }
+  if(changed && meta.visibleWeek !== v){
+    meta.visibleWeek = v;
+    saveProgress();
+  }
+  return changed;
+}
+function searchWeek(){
+  const input = document.getElementById('weekSearch');
+  const hint = document.getElementById('searchHint');
+  const val = parseInt(input.value, 10);
+  if(!val || val < 1 || val > TOTAL_WEEKS){
+    input.classList.add('bad');
+    hint.textContent = 'Введи номер недели от 1 до ' + TOTAL_WEEKS;
+    setTimeout(function(){
+      input.classList.remove('bad');
+      hint.textContent = '';
+    }, 2000);
+    return;
+  }
+  openWeek(val);
 }
 
 /* ================= СЛОВА ================= */
@@ -104,14 +163,18 @@ function goTo(n){
 
 /* ================= ГЛАВНАЯ ================= */
 function renderHome(){
+  const v = visibleWeek();
   const grid = document.getElementById('weekGrid');
   grid.innerHTML = '';
   let daysDone = 0, weeksDone = 0;
-  for(let w = 1; w <= 52; w++){
+  for(let w = 1; w <= TOTAL_WEEKS; w++){
     const doneInWeek = [1,2,3,4,5].filter(function(d){ return dayDone(w, d); }).length;
-    const starsInWeek = [1,2,3,4,5].reduce(function(s, d){ return s + getDayData(w, d).stars; }, 0);
     daysDone += doneInWeek;
     if(doneInWeek === 5) weeksDone++;
+  }
+  for(let w = 1; w <= v; w++){
+    const doneInWeek = [1,2,3,4,5].filter(function(d){ return dayDone(w, d); }).length;
+    const starsInWeek = [1,2,3,4,5].reduce(function(s, d){ return s + getDayData(w, d).stars; }, 0);
     const card = document.createElement('button');
     card.className = 'week-card';
     card.setAttribute('data-theme', themeGroup(w));
@@ -125,7 +188,15 @@ function renderHome(){
     grid.appendChild(card);
   }
   document.getElementById('homeStats').textContent =
-    '📅 Пройдено дней: ' + daysDone + ' / 260 • 🏆 Недель с кубком: ' + weeksDone + ' / 52';
+    '📅 Пройдено дней: ' + daysDone + ' / ' + (TOTAL_WEEKS * 5) + ' • 🏆 Недель с кубком: ' + weeksDone + ' / ' + TOTAL_WEEKS;
+  const hint = document.getElementById('homeRevealHint');
+  if(v >= TOTAL_WEEKS){
+    hint.textContent = '🎉 Открыты все ' + TOTAL_WEEKS + ' недель — ты большая умница!';
+  } else {
+    const end = Math.min(TOTAL_WEEKS, v + GROUP_SIZE);
+    hint.textContent = '📖 Пока открыты недели 1–' + v + ' из ' + TOTAL_WEEKS +
+      '. Пройди все 5 дней недели ' + v + ', чтобы открыть недели ' + (v + 1) + '–' + end + ' 🔓';
+  }
 }
 
 /* ================= ЭКРАН НЕДЕЛИ ================= */
@@ -512,5 +583,15 @@ function selectMatch(el){
 
 /* ================= СТАРТ ================= */
 loadProgress();
+seedVisibleWeek();
 document.body.setAttribute('data-theme', themeGroup(currentWeek));
+const searchInput = document.getElementById('weekSearch');
+if(searchInput){
+  searchInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      searchWeek();
+    }
+  });
+}
 showHome();
