@@ -113,7 +113,7 @@ h2{color:var(--purple)}
 .btn-skip{background:#E2E8F0;color:#64748B;border:2px dashed #CBD5E1}
 
 /* ==== ГЛАВНАЯ: сетка 52 недель ==== */
-.week-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:20px}
+.week-grid{display:grid;grid-template-columns:repeat(4,minmax(130px,150px));justify-content:center;gap:12px;margin-top:20px}
 .week-card{border:none;border-radius:16px;padding:12px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text);font-family:inherit;background:linear-gradient(135deg,var(--bg1),var(--bg2));transition:transform .2s}
 .week-card:hover{transform:translateY(-4px) scale(1.03)}
 .week-num{font-weight:bold;font-size:1.05em}
@@ -206,7 +206,7 @@ canvas{border:3px solid var(--purple);border-radius:15px;background:#fff;cursor:
   .home-stats{font-size:.85em;padding:8px;max-width:100%}
 
   /* сетка недель */
-  .week-grid{grid-template-columns:repeat(auto-fill,minmax(94px,1fr));gap:8px;margin-top:14px}
+  .week-grid{grid-template-columns:repeat(2,minmax(94px,110px));justify-content:center;gap:8px;margin-top:14px}
   .week-card{padding:9px 6px;border-radius:13px}
   .week-num{font-size:.9em}
   .dot{width:8px;height:8px}
