@@ -71,11 +71,18 @@ function visibleWeek(){
   const meta = getMeta();
   return meta.visibleWeek || GROUP_SIZE;
 }
+function groupDay5Done(end){
+  const start = Math.max(1, end - GROUP_SIZE + 1);
+  for(let w = start; w <= end; w++){
+    if(!dayDone(w, 5)) return false;
+  }
+  return true;
+}
 function maybeExtendReveal(){
   const meta = getMeta();
   let v = visibleWeek();
   let changed = false;
-  while(v < TOTAL_WEEKS && weekDone(v)){
+  while(v < TOTAL_WEEKS && groupDay5Done(v)){
     v = Math.min(TOTAL_WEEKS, v + GROUP_SIZE);
     changed = true;
   }
@@ -166,11 +173,10 @@ function renderHome(){
   const v = visibleWeek();
   const grid = document.getElementById('weekGrid');
   grid.innerHTML = '';
-  let daysDone = 0, weeksDone = 0;
+  let daysDone = 0;
   for(let w = 1; w <= TOTAL_WEEKS; w++){
     const doneInWeek = [1,2,3,4,5].filter(function(d){ return dayDone(w, d); }).length;
     daysDone += doneInWeek;
-    if(doneInWeek === 5) weeksDone++;
   }
   for(let w = 1; w <= v; w++){
     const doneInWeek = [1,2,3,4,5].filter(function(d){ return dayDone(w, d); }).length;
@@ -187,15 +193,16 @@ function renderHome(){
     card.onclick = (function(ww){ return function(){ openWeek(ww); }; })(w);
     grid.appendChild(card);
   }
-  document.getElementById('homeStats').textContent =
-    '📅 Пройдено дней: ' + daysDone + ' / ' + (TOTAL_WEEKS * 5) + ' • 🏆 Недель с кубком: ' + weeksDone + ' / ' + TOTAL_WEEKS;
+  const pct = Math.round(daysDone / (TOTAL_WEEKS * 5) * 100);
+  document.getElementById('homeStats').textContent = '📅 Пройдено: ' + pct + '%';
   const hint = document.getElementById('homeRevealHint');
   if(v >= TOTAL_WEEKS){
     hint.textContent = '🎉 Открыты все ' + TOTAL_WEEKS + ' недель — ты большая умница!';
   } else {
     const end = Math.min(TOTAL_WEEKS, v + GROUP_SIZE);
+    const start = Math.max(1, v - GROUP_SIZE + 1);
     hint.textContent = '📖 Пока открыты недели 1–' + v + ' из ' + TOTAL_WEEKS +
-      '. Пройди все 5 дней недели ' + v + ', чтобы открыть недели ' + (v + 1) + '–' + end + ' 🔓';
+      '. Доступ к следующим неделям откроется, когда пройден день 5 (повторение) всех недель ' + start + '–' + v + ' 🔓';
   }
 }
 
