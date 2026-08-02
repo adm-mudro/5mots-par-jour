@@ -199,10 +199,7 @@ function renderHome(){
   if(v >= TOTAL_WEEKS){
     hint.textContent = '🎉 Открыты все ' + TOTAL_WEEKS + ' недель — ты большая умница!';
   } else {
-    const end = Math.min(TOTAL_WEEKS, v + GROUP_SIZE);
-    const start = Math.max(1, v - GROUP_SIZE + 1);
-    hint.textContent = '📖 Пока открыты недели 1–' + v + ' из ' + TOTAL_WEEKS +
-      '. Доступ к следующим неделям откроется, когда пройден день 5 (повторение) всех недель ' + start + '–' + v + ' 🔓';
+    hint.textContent = '📖 Пока открыты недели 1–' + v + ', чтобы открыть следующие — пройдите день 5 (повторение) в каждой неделе';
   }
 }
 
